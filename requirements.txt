@@ -1,0 +1,11 @@
+numpy
+torch == 1.7.1
+tensorboard
+transformers == 4.2.0
+rouge_score
+sacrebleu
+fairseq
+pyrouge
+scipy
+pandas
+nltk
