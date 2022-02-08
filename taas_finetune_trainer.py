@@ -208,6 +208,7 @@ def main():
         cache_dir=model_args.cache_dir,
     )
 
+    # load pretrained model or checkpoint
     if not model_args.load_checkpoint:
         model = TAASForConditionalGeneration.from_pretrained(
             model_args.model_name_or_path,

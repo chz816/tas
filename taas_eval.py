@@ -198,7 +198,7 @@ def run_generate():
     if generate_kwargs and args.local_rank <= 0:
         print(f"parsed the following generate kwargs: {generate_kwargs}")
     json_save_dir = Path(args.save_dir + "_tmp")
-    Path(json_save_dir).mkdir(exist_ok=True)  # this handles locking.
+    Path(json_save_dir).mkdir(parents=True, exist_ok=True)  # this handles locking.
     intermediate_files = list(json_save_dir.glob("rank_*.json"))
     if intermediate_files:
         raise ValueError(f"Found files at {json_save_dir} please move or remove them.")
