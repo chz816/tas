@@ -3,3 +3,5 @@
 **/xsum/
 **/xsum.tar.gz
 **/cnn_dm_v2.tgz
+**/__pycache__/
+**/.lock
