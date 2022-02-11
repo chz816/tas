@@ -12,8 +12,7 @@ $ pip install -r requirements.txt
 Based on the recommendation from HuggingFace, both finetuning and eval are 30% faster with ```--fp16```. For that you need to install ```apex```.
 ```bash
 $ git clone https://github.com/NVIDIA/apex
-$ cd apex
-$ pip install -v --disable-pip-version-check --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./
+$ pip install -v --no-cache-dir ./apex
 ```
 
 ## Data
@@ -136,4 +135,29 @@ $ python -m torch.distributed.launch --nproc_per_node=3  taas_eval.py \
     --fp16 \
     --use_checkpoint \
     --checkpoint_path $CHECKPOINT_DIR
+```
+
+## Note for training
+
+### Script for clear output in google colab
+```bash
+function ClearOutput(){
+    console.log("Cleared Output"); 
+    document.querySelector("iron-icon[command = 'clear-focused-or-selected-outputs']").click()
+}
+setInterval(ClearOutput,600000)
+```
+
+#### Tips
+Can use ```nohup``` command for redirect output into txt file
+
+### Script for clear all interval for browser
+```bash
+// Get a reference to the last interval + 1
+const interval_id = window.setInterval(function(){}, Number.MAX_SAFE_INTEGER);
+
+// Clear any timeout/interval up to that id
+for (let i = 1; i < interval_id; i++) {
+  window.clearInterval(i);
+}
 ```
