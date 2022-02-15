@@ -36,11 +36,15 @@ from transformers.modeling_outputs import (
 from transformers.modeling_utils import PreTrainedModel
 from transformers.utils import logging
 from transformers.models.bart.configuration_bart import BartConfig
+from transformers.models.pegasus.configuration_pegasus import PegasusConfig
 
 from topic_models.networks.decoding_network import DecoderNetwork
 from topic_models.loss import topic_modeling_loss
+
 from transformers.models.bart.modeling_bart import BartEncoder, BartDecoder, BartPretrainedModel, \
     BartLearnedPositionalEmbedding, BartEncoderLayer, BartDecoderLayer
+from transformers.models.pegasus.modeling_pegasus import PegasusEncoder, PegasusDecoder, PegasusPretrainedModel, \
+    PegasusLearnedPositionalEmbedding, PegasusEncoderLayer, PegasusDecoderLayer
 
 logger = logging.get_logger(__name__)
 
@@ -227,15 +231,15 @@ BART_INPUTS_DOCSTRING = r"""
     "The bare BART Model outputting raw hidden-states without any specific head on top.",
     BART_START_DOCSTRING,
 )
-class TAASModel(BartPretrainedModel):
-    def __init__(self, config: BartConfig):
+class TAASModel(PegasusPretrainedModel):
+    def __init__(self, config: PegasusConfig):
         super().__init__(config)
 
         padding_idx, vocab_size = config.pad_token_id, config.vocab_size
         self.shared = nn.Embedding(vocab_size, config.d_model, padding_idx)
-        # we use BartEncoder and BartDecoder
-        self.encoder = BartEncoder(config, self.shared)
-        self.decoder = BartDecoder(config, self.shared)
+
+        self.encoder = PegasusEncoder(config, self.shared)
+        self.decoder = PegasusDecoder(config, self.shared)
 
         self.init_weights()
 
@@ -340,7 +344,7 @@ class TAASModel(BartPretrainedModel):
 @add_start_docstrings(
     "The BART Model with a language modeling head. Can be used for summarization.", BART_START_DOCSTRING
 )
-class TAASForConditionalGeneration(BartPretrainedModel):
+class TAASForConditionalGeneration(PegasusPretrainedModel):
     base_model_prefix = "model"
     _keys_to_ignore_on_load_missing = [
         r"final_logits_bias",
@@ -349,7 +353,7 @@ class TAASForConditionalGeneration(BartPretrainedModel):
         r"lm_head\.weight",
     ]
 
-    def __init__(self, config: BartConfig, topic_num=1024, vocab_size=2000):
+    def __init__(self, config: PegasusConfig, topic_num=1024, vocab_size=2000):
         super().__init__(config)
         self.model = TAASModel(config)
         self.register_buffer("final_logits_bias", torch.zeros((1, self.model.shared.num_embeddings)))

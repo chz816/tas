@@ -32,9 +32,12 @@ from transformers import (
     AutoModelForSeq2SeqLM,
     AutoTokenizer,
     HfArgumentParser,
-    MBartTokenizer,
+    PegasusTokenizer,
     set_seed,
 )
+
+# from transformers.models.pegasus.tokenization_pegasus import PegasusTokenizer as MBartTokenizer
+
 from transformers.trainer_utils import EvaluationStrategy, is_main_process
 from utils import (
     assert_all_frozen,
@@ -230,7 +233,7 @@ def main():
         data_args.eval_beams = model.config.num_beams
 
     # set decoder_start_token_id for MBart
-    if model.config.decoder_start_token_id is None and isinstance(tokenizer, MBartTokenizer):
+    if model.config.decoder_start_token_id is None and isinstance(tokenizer, PegasusTokenizer):
         assert (
                 data_args.tgt_lang is not None and data_args.src_lang is not None
         ), "mBart requires --tgt_lang and --src_lang"
