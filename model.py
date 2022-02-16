@@ -43,7 +43,7 @@ from topic_models.loss import topic_modeling_loss
 
 from transformers.models.bart.modeling_bart import BartEncoder, BartDecoder, BartPretrainedModel, \
     BartLearnedPositionalEmbedding, BartEncoderLayer, BartDecoderLayer
-from transformers.models.pegasus.modeling_pegasus import PegasusEncoder, PegasusDecoder, PegasusPretrainedModel, \
+from transformers.models.pegasus.modeling_pegasus import PegasusEncoder, PegasusDecoder, PegasusPreTrainedModel, \
     PegasusLearnedPositionalEmbedding, PegasusEncoderLayer, PegasusDecoderLayer
 
 logger = logging.get_logger(__name__)
@@ -231,7 +231,7 @@ BART_INPUTS_DOCSTRING = r"""
     "The bare BART Model outputting raw hidden-states without any specific head on top.",
     BART_START_DOCSTRING,
 )
-class TAASModel(PegasusPretrainedModel):
+class TAASModel(PegasusPreTrainedModel):
     def __init__(self, config: PegasusConfig):
         super().__init__(config)
 
@@ -344,7 +344,7 @@ class TAASModel(PegasusPretrainedModel):
 @add_start_docstrings(
     "The BART Model with a language modeling head. Can be used for summarization.", BART_START_DOCSTRING
 )
-class TAASForConditionalGeneration(PegasusPretrainedModel):
+class TAASForConditionalGeneration(PegasusPreTrainedModel):
     base_model_prefix = "model"
     _keys_to_ignore_on_load_missing = [
         r"final_logits_bias",
