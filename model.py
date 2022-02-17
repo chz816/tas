@@ -44,7 +44,7 @@ from topic_models.loss import topic_modeling_loss
 from transformers.models.bart.modeling_bart import BartEncoder, BartDecoder, BartPretrainedModel, \
     BartLearnedPositionalEmbedding, BartEncoderLayer, BartDecoderLayer
 from transformers.models.pegasus.modeling_pegasus import PegasusEncoder, PegasusDecoder, PegasusPreTrainedModel, \
-    PegasusLearnedPositionalEmbedding, PegasusEncoderLayer, PegasusDecoderLayer
+    PegasusEncoderLayer, PegasusDecoderLayer
 
 logger = logging.get_logger(__name__)
 
