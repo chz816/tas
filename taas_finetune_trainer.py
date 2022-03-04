@@ -62,7 +62,7 @@ class ModelArguments:
     Arguments pertaining to which model/config/tokenizer we are going to fine-tune from.
     """
 
-    model_name_or_path: str = field(
+    model_name_or_path: Optional[str] = field(
         metadata={"help": "Path to pretrained model or model identifier from huggingface.co/models"}
     )
     config_name: Optional[str] = field(
@@ -75,21 +75,21 @@ class ModelArguments:
         default=None,
         metadata={"help": "Where do you want to store the pretrained models downloaded from huggingface.co"},
     )
-    freeze_encoder: bool = field(default=False, metadata={"help": "Whether tp freeze the encoder."})
-    freeze_decoder: bool = field(default=False, metadata={"help": "Whether tp freeze the decoder."})
-    freeze_embeds: bool = field(default=False, metadata={"help": "Whether  to freeze the embeddings."})
-    topic_num: int = field(default=1024, metadata={"help": "Number of topics learned in NTM"})
-    loss_alpha: float = field(default=0, metadata={"help": "Weight for calculate total loss"})
-    loss_beta: float = field(default=1, metadata={"help": "Weight for calculate total loss"})
-    topic_vocab: int = field(default=2000, metadata={"help": "Size of vocab in NTM"})
+    freeze_encoder: Optional[bool] = field(default=False, metadata={"help": "Whether tp freeze the encoder."})
+    freeze_decoder: Optional[bool] = field(default=False, metadata={"help": "Whether tp freeze the decoder."})
+    freeze_embeds: Optional[bool] = field(default=False, metadata={"help": "Whether  to freeze the embeddings."})
+    topic_num: Optional[int] = field(default=1024, metadata={"help": "Number of topics learned in NTM"})
+    loss_alpha: Optional[float] = field(default=0, metadata={"help": "Weight for calculate total loss"})
+    loss_beta: Optional[float] = field(default=1, metadata={"help": "Weight for calculate total loss"})
+    topic_vocab: Optional[int] = field(default=2000, metadata={"help": "Size of vocab in NTM"})
 
-    continue_trainer: bool = field(default=False, metadata={"help": "flag variable to continue training"})
-    continue_trainer_path: str = field(default=None, metadata={"help": "checkpoint path to continue training"})
+    continue_trainer: Optional[bool] = field(default=False, metadata={"help": "flag variable to continue training"})
+    continue_trainer_path: Optional[str] = field(default=None, metadata={"help": "checkpoint path to continue training"})
 
-    load_checkpoint: bool = field(default=False, metadata={"help": "flag variable to continue training"})
-    load_checkpoint_path: str = field(default=None, metadata={"help": "checkpoint path to continue training"})
+    load_checkpoint: Optional[bool] = field(default=False, metadata={"help": "flag variable to continue training"})
+    load_checkpoint_path: Optional[str] = field(default=None, metadata={"help": "checkpoint path to continue training"})
 
-    topic_model_type: str = field(default='prodLDA', metadata={"help": "what type of topic model is employed"})
+    topic_model_type: Optional[str] = field(default='prodLDA', metadata={"help": "what type of topic model is employed"})
 
 
 @dataclass
@@ -98,7 +98,7 @@ class DataTrainingArguments:
     Arguments pertaining to what data we are going to input our model for training and eval.
     """
 
-    data_dir: str = field(
+    data_dir: Optional[str] = field(
         metadata={"help": "The input data dir. Should contain the .tsv files (or other data files) for the task."}
     )
     task: Optional[str] = field(
@@ -141,7 +141,7 @@ class DataTrainingArguments:
     src_lang: Optional[str] = field(default=None, metadata={"help": "Source language id for translation."})
     tgt_lang: Optional[str] = field(default=None, metadata={"help": "Target language id for translation."})
     eval_beams: Optional[int] = field(default=None, metadata={"help": "# num_beams to use for evaluation."})
-    ignore_pad_token_for_loss: bool = field(
+    ignore_pad_token_for_loss: Optional[bool] = field(
         default=True,
         metadata={"help": "If only pad tokens should be ignored. This assumes that `config.pad_token_id` is defined."},
     )
@@ -256,8 +256,7 @@ def main():
     # preprocess for the topic modeling
     logger.info("Preprocess the documents for topic modeling")
     # load the input documents for training
-    train_documents = [line.strip() for line in
-                       open(f"{data_args.data_dir}/train.source", encoding="utf-8").readlines()]
+    train_documents = [line.strip() for line in open(f"{data_args.data_dir}/train.source", encoding="utf-8").readlines()]
     # load the input documents for validation
     val_documents = [line.strip() for line in open(f"{data_args.data_dir}/val.source", encoding="utf-8").readlines()]
     # load the input documents for testing set
@@ -276,6 +275,8 @@ def main():
     sp = WhiteSpacePreprocessing(test_documents, "english")
     # use the pre-defined topic_vocab, which is learned from the training set
     preprocessed_documents_for_bow_test, test_topic_vocab = sp.preprocess(vocabulary=topic_vocab)
+
+    # load topic model data praparation
     qt = TopicModelDataPreparation(topic_vocab)
     # get bow representation for training
     bow_dataset_train = qt.create_training_set(preprocessed_documents_for_bow_training)
