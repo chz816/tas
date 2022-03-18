@@ -229,7 +229,7 @@ PEGASUS_INPUTS_DOCSTRING = r"""
     PEGASUS_START_DOCSTRING,
 )
 class TAASModel(PegasusPreTrainedModel):
-    def __init__(self, config: PegasusConfig):
+    def __init__(self, config: PegasusConfig, topic_num=1024, t_vocab_size=2000):
         super().__init__(config)
 
         padding_idx, vocab_size = config.pad_token_id, config.vocab_size
@@ -237,6 +237,18 @@ class TAASModel(PegasusPreTrainedModel):
 
         self.encoder = PegasusEncoder(config, self.shared)
         self.decoder = PegasusDecoder(config, self.shared)
+
+        # initial topic model
+        self.topic_num = topic_num
+        # todo: confirm the vocab_size for topic modeling
+        self.topic_model = DecoderNetwork(vocab_size=vocab_size, bert_size=config.d_model,
+                                          infnet="zeroshot", num_topics=self.topic_num, model_type='prodLDA',
+                                          hidden_sizes=(100, 100), activation='relu',
+                                          dropout=self.config.dropout, learn_priors=True)
+        # transfer the topic modeling vocab to vocab size
+        self.tm_head = nn.Linear(vocab_size, self.model.shared.num_embeddings, bias=False)
+        # for model analysis: use an additional NN to transfer dimension
+        # self.dimhead = nn.Linear(config.d_model, self.topic_num, bias=False)
 
         self.init_weights()
 
@@ -349,23 +361,11 @@ class TAASForConditionalGeneration(PegasusPreTrainedModel):
         r"lm_head\.weight",
     ]
 
-    def __init__(self, config: PegasusConfig, topic_num=1024, vocab_size=2000):
+    def __init__(self, config: PegasusConfig):
         super().__init__(config)
         self.model = TAASModel(config)
         self.register_buffer("final_logits_bias", torch.zeros((1, self.model.shared.num_embeddings)))
         self.lm_head = nn.Linear(config.d_model, self.model.shared.num_embeddings, bias=False)
-
-        # initial topic model
-        self.topic_num = topic_num
-        # todo: confirm the vocab_size for topic modeling
-        self.topic_model = DecoderNetwork(vocab_size=vocab_size, bert_size=config.d_model,
-                                          infnet="zeroshot", num_topics=self.topic_num, model_type='prodLDA',
-                                          hidden_sizes=(100, 100), activation='relu',
-                                          dropout=self.config.dropout, learn_priors=True)
-        # transfer the topic modeling vocab to vocab size
-        self.tm_head = nn.Linear(vocab_size, self.model.shared.num_embeddings, bias=False)
-        # for model analysis: use an additional NN to transfer dimension
-        # self.dimhead = nn.Linear(config.d_model, self.topic_num, bias=False)
 
         # Initialize weights
         self.init_weights()
@@ -449,6 +449,7 @@ class TAASForConditionalGeneration(PegasusPreTrainedModel):
             return_dict=return_dict,
         )
 
+        '''
         # topic attention
         bow = bow.reshape(bow.shape[0], -1)
 
@@ -474,6 +475,9 @@ class TAASForConditionalGeneration(PegasusPreTrainedModel):
                 self.topic_model.topic_word))
         else:
             lm_logits = self.lm_head(outputs[0]) + self.final_logits_bias
+        '''
+
+        lm_logits = self.lm_head(outputs[0]) + self.final_logits_bias
 
         masked_lm_loss = None
         if labels is not None:
@@ -484,12 +488,14 @@ class TAASForConditionalGeneration(PegasusPreTrainedModel):
             output = (lm_logits,) + outputs[1:]
             return ((masked_lm_loss,) + output) if masked_lm_loss is not None else output
 
+        '''
         # loss for topic modeling
         if bow.size()[0] < word_dists.size()[0]:
             loss_topic_modeling = 0
         else:
             loss_topic_modeling = topic_modeling_loss(bow, self.topic_num, word_dists, prior_mean, prior_variance,
                                                       posterior_mean, posterior_variance, posterior_log_variance)
+        '''
 
         return Seq2SeqLMOutput(
             loss=masked_lm_loss,
@@ -501,7 +507,7 @@ class TAASForConditionalGeneration(PegasusPreTrainedModel):
             encoder_last_hidden_state=outputs.encoder_last_hidden_state,
             encoder_hidden_states=outputs.encoder_hidden_states,
             encoder_attentions=outputs.encoder_attentions,
-        ), loss_topic_modeling, self.topic_model.topic_word
+        ), self.model.loss_topic_modeling, self.model.topic_model.topic_word
 
     def prepare_inputs_for_generation(self, decoder_input_ids, past=None, attention_mask=None, use_cache=None,
                                       encoder_outputs=None, **kwargs):
