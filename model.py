@@ -241,12 +241,12 @@ class TAASModel(PegasusPreTrainedModel):
         # initial topic model
         self.topic_num = topic_num
         # todo: confirm the vocab_size for topic modeling
-        self.topic_model = DecoderNetwork(vocab_size=vocab_size, bert_size=config.d_model,
+        self.topic_model = DecoderNetwork(vocab_size=t_vocab_size, bert_size=config.d_model,
                                           infnet="zeroshot", num_topics=self.topic_num, model_type='prodLDA',
                                           hidden_sizes=(100, 100), activation='relu',
                                           dropout=self.config.dropout, learn_priors=True)
         # transfer the topic modeling vocab to vocab size
-        self.tm_head = nn.Linear(vocab_size, self.model.shared.num_embeddings, bias=False)
+        self.tm_head = nn.Linear(t_vocab_size, self.model.shared.num_embeddings, bias=False)
         # for model analysis: use an additional NN to transfer dimension
         # self.dimhead = nn.Linear(config.d_model, self.topic_num, bias=False)
 
@@ -397,9 +397,9 @@ class TAASForConditionalGeneration(PegasusPreTrainedModel):
         r"lm_head\.weight",
     ]
 
-    def __init__(self, config: PegasusConfig):
+    def __init__(self, config: PegasusConfig, topic_num=1024, t_vocab_size=2000):
         super().__init__(config)
-        self.model = TAASModel(config, topic_num=1024, t_vocab_size=2000)
+        self.model = TAASModel(config, topic_num=topic_num, t_vocab_size=t_vocab_size)
         self.register_buffer("final_logits_bias", torch.zeros((1, self.model.shared.num_embeddings)))
         self.lm_head = nn.Linear(config.d_model, self.model.shared.num_embeddings, bias=False)
 
