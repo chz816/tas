@@ -246,7 +246,7 @@ class TAASModel(PegasusPreTrainedModel):
                                           hidden_sizes=(100, 100), activation='relu',
                                           dropout=self.config.dropout, learn_priors=True)
         # transfer the topic modeling vocab to vocab size
-        self.tm_head = nn.Linear(t_vocab_size, self.model.shared.num_embeddings, bias=False)
+        # self.tm_head = nn.Linear(t_vocab_size, self.shared.num_embeddings, bias=False)
         # for model analysis: use an additional NN to transfer dimension
         # self.dimhead = nn.Linear(config.d_model, self.topic_num, bias=False)
 
