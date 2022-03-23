@@ -342,8 +342,6 @@ class TAASModel(PegasusPreTrainedModel):
         # theta = self.topic_model.get_theta(bow, outputs.encoder_last_hidden_state[::, 0])
 
         if topic_guided:
-            #     lm_logits = self.lm_head(outputs[0]) + self.final_logits_bias + torch.matmul(self.dimhead(outputs[0]), self.tm_head(
-            #         self.topic_model.topic_word))
             _encoder_hidden_states = encoder_outputs[0] + self.topic_model.topic_word
         else:
             _encoder_hidden_states = encoder_outputs[0]
@@ -481,6 +479,7 @@ class TAASForConditionalGeneration(PegasusPreTrainedModel):
             output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
             return_dict=return_dict,
+            bow=None,
         )
 
         '''
