@@ -448,6 +448,7 @@ class TAASForConditionalGeneration(PegasusPreTrainedModel):
             output_attentions=None,
             output_hidden_states=None,
             return_dict=None,
+            bow=None,
     ):
         r"""
         labels (:obj:`torch.LongTensor` of shape :obj:`(batch_size, sequence_length)`, `optional`):
@@ -479,7 +480,7 @@ class TAASForConditionalGeneration(PegasusPreTrainedModel):
             output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
             return_dict=return_dict,
-            bow=None,
+            bow=bow,
         )
 
         '''
