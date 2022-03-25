@@ -333,7 +333,7 @@ class TAASModel(PegasusPreTrainedModel):
         # self.lm_head = nn.Linear(config.d_model, self.model.shared.num_embeddings, bias=False)
         # self.lm_head(outputs[0]): torch.Size([bs, #(summary), #(vocab)])
         
-        # self.topic_model.topic_word: torch.Size([1024, 2000]) (torch.Size([bs, num_topics, vocab_size]))
+        # self.topic_model.topic_word: torch.Size([1024, 2000]) (torch.Size([num_topics, vocab_size]))
         # self.tm_head = nn.Linear(vocab_size, self.model.shared.num_embeddings, bias=False)
         # self.tm_head(self.topic_model.topic_word): torch.Size([bs, num_topics, vocab_size])
         # torch.matmul() : torch.Size([bs, #(summary), #(vocab)])
