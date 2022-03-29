@@ -246,7 +246,7 @@ class TAASModel(PegasusPreTrainedModel):
                                           hidden_sizes=(100, 100), activation='relu',
                                           dropout=self.config.dropout, learn_priors=True)
         # transfer the topic modeling vocab to vocab size
-        # self.tm_head = nn.Linear(t_vocab_size, self.shared.num_embeddings, bias=False)
+        self.tm_head = nn.Linear(t_vocab_size, config.d_model, bias=False)
         # for model analysis: use an additional NN to transfer dimension
         # self.dimhead = nn.Linear(config.d_model, self.topic_num, bias=False)
 
@@ -333,16 +333,18 @@ class TAASModel(PegasusPreTrainedModel):
         # self.lm_head = nn.Linear(config.d_model, self.model.shared.num_embeddings, bias=False)
         # self.lm_head(outputs[0]): torch.Size([bs, #(summary), #(vocab)])
         
-        # self.topic_model.topic_word: torch.Size([1024, 2000]) (torch.Size([num_topics, vocab_size]))
-        # self.tm_head = nn.Linear(vocab_size, self.model.shared.num_embeddings, bias=False)
-        # self.tm_head(self.topic_model.topic_word): torch.Size([bs, num_topics, vocab_size])
+        # self.topic_model.topic_word: torch.Size([1024, 2000]) (torch.Size([num_topics, #(t_vocab)]))
+        # self.tm_head = nn.Linear(#(t_vocab), self.model.shared.num_embeddings, bias=False)
+        # self.tm_head(self.topic_model.topic_word): torch.Size([bs, num_topics, #(vocab)])
         # torch.matmul() : torch.Size([bs, #(summary), #(vocab)])
 
         # lm_logits.size(): torch.Size([16, 38, 50264]) => batch_size * #(summary) * len(vocab)
         # theta = self.topic_model.get_theta(bow, outputs.encoder_last_hidden_state[::, 0])
 
+        # encoder_outputs[0]: [bs, #doc, d_model]
+
         if topic_guided:
-            _encoder_hidden_states = encoder_outputs[0] + self.topic_model.topic_word
+            _encoder_hidden_states = encoder_outputs[0] + torch.matmul(encoder_outputs[0], self.tm_head(self.topic_model.topic_word))
         else:
             _encoder_hidden_states = encoder_outputs[0]
 
@@ -494,9 +496,9 @@ class TAASForConditionalGeneration(PegasusPreTrainedModel):
         # self.lm_head = nn.Linear(config.d_model, self.model.shared.num_embeddings, bias=False)
         # self.lm_head(outputs[0]): torch.Size([bs, #(summary), #(vocab)])
         
-        # self.topic_model.topic_word: torch.Size([1024, 2000]) (torch.Size([bs, num_topics, vocab_size]))
-        # self.tm_head = nn.Linear(vocab_size, self.model.shared.num_embeddings, bias=False)
-        # self.tm_head(self.topic_model.topic_word): torch.Size([bs, num_topics, vocab_size])
+        # self.topic_model.topic_word: torch.Size([1024, 2000]) (torch.Size([num_topics, #(t_vocab)]))
+        # self.tm_head = nn.Linear(#(t_vocab), #(vocab), bias=False)
+        # self.tm_head(self.topic_model.topic_word): torch.Size([num_topics, #(t_vocab)])
         # torch.matmul() : torch.Size([bs, #(summary), #(vocab)])
 
         # lm_logits.size(): torch.Size([16, 38, 50264]) => batch_size * #(summary) * len(vocab)

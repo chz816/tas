@@ -22,7 +22,7 @@ class DecoderNetwork(nn.Module):
 
         Args
             vocab_size : int, dimension of input
-            num_topics : int, number of topic components, (default 10)
+            num_topics : int, number of topic components
             model_type : string, 'prodLDA' or 'LDA' (default 'prodLDA')
             hidden_sizes : tuple, length = n_layers, (default (100, 100))
             activation : string, 'softplus', 'relu', (default 'softplus')
