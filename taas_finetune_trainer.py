@@ -78,7 +78,7 @@ class ModelArguments:
     freeze_encoder: bool = field(default=False, metadata={"help": "Whether tp freeze the encoder."})
     freeze_decoder: bool = field(default=False, metadata={"help": "Whether tp freeze the decoder."})
     freeze_embeds: bool = field(default=False, metadata={"help": "Whether  to freeze the embeddings."})
-    topic_num: int = field(default=1024, metadata={"help": "Number of topics learned in NTM"})
+    topic_num: int = field(default=100, metadata={"help": "Number of topics learned in NTM"})
     loss_alpha: float = field(default=0, metadata={"help": "Weight for calculate total loss"})
     loss_beta: float = field(default=1, metadata={"help": "Weight for calculate total loss"})
     topic_vocab: int = field(default=2000, metadata={"help": "Size of vocab in NTM"})
