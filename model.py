@@ -242,7 +242,7 @@ class TAASModel(PegasusPreTrainedModel):
         self.topic_num = topic_num
         # todo: confirm the vocab_size for topic modeling
         self.topic_model = DecoderNetwork(vocab_size=t_vocab_size, bert_size=config.d_model,
-                                          infnet="zeroshot", num_topics=self.topic_num, model_type='prodLDA',
+                                          infnet="combined", num_topics=self.topic_num, model_type='prodLDA',
                                           hidden_sizes=(100, 100), activation='relu',
                                           dropout=self.config.dropout, learn_priors=True)
         # transfer the topic modeling vocab to vocab size
@@ -345,7 +345,7 @@ class TAASModel(PegasusPreTrainedModel):
         # encoder_outputs[0]: [bs, #doc, d_model]
 
         if topic_guided:
-            # convert encoder_outputs[0] to 
+            # convert encoder_outputs[0] 
             _encoder_hidden_states = encoder_outputs[0] + torch.matmul(self.lm_head(encoder_outputs[0]), self.tm_head(self.topic_model.topic_word))
         else:
             _encoder_hidden_states = encoder_outputs[0]
